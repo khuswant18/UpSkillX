@@ -33,7 +33,7 @@
   "homepage": "https://github.com/khuswant18/EduNerve_AI_Backend#readme",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@prisma/client": "^7.2.0",
+    "@prisma/client": "^6.19.2",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -42,7 +42,7 @@
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.10",
-    "prisma": "^7.2.0"
+    "prisma": "^6.19.2"
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
