@@ -3,37 +3,29 @@ import { useLearner } from "../../context/LearnerContext"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import Button from "../common/Button"
 import { MessageSquare, ThumbsUp, Clock, CheckCircle2, AlertCircle, TrendingUp, Award } from "lucide-react"
-
 export function FeedbackContent() {
   const { learnerProfile } = useLearner()
   const [expandedFeedback, setExpandedFeedback] = useState({})
-
   const toggleFeedback = (id) => {
     setExpandedFeedback(prev => ({
       ...prev,
       [id]: !prev[id]
     }))
   }
-
-  // Get interview data
   const interviews = learnerProfile?.interviewsPracticed || []
   const completedInterviews = interviews.filter(i => i.status === "completed")
   const pendingInterviews = interviews.filter(i => i.status === "pending" || i.status === "in-progress")
-  
-  // Calculate average score
   const avgScore = completedInterviews.length > 0
     ? Math.round(completedInterviews.reduce((sum, i) => sum + (i.overallScore || 0), 0) / completedInterviews.length)
     : 0
-
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {}
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Feedback & Results</h2>
         <p className="text-slate-600 mt-1">Review your interview feedback and performance insights</p>
       </div>
-
-      {/* Summary Stats */}
+      {}
       <div className="grid gap-4 md:grid-cols-4">
         <Card className="border-slate-200 bg-white">
           <CardContent className="pt-6">
@@ -88,8 +80,7 @@ export function FeedbackContent() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Interview Results */}
+      {}
       {completedInterviews.length > 0 ? (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-slate-900">Interview Results</h3>
@@ -101,7 +92,6 @@ export function FeedbackContent() {
             const rating = score >= 90 ? "Excellent" : 
                           score >= 75 ? "Very Good" : 
                           score >= 60 ? "Good" : "Needs Improvement"
-
             return (
               <Card key={interview.id || index} className="border-slate-200 bg-white">
                 <CardHeader>
@@ -132,7 +122,7 @@ export function FeedbackContent() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Feedback */}
+                  {}
                   {interview.feedback && (
                     <div>
                       <h4 className="font-semibold text-slate-900 mb-2 flex items-center gap-2">
@@ -154,8 +144,7 @@ export function FeedbackContent() {
                       )}
                     </div>
                   )}
-
-                  {/* Strengths and Improvements */}
+                  {}
                   <div className="grid gap-4 md:grid-cols-2">
                     {interview.strengths && interview.strengths.length > 0 && (
                       <div className="space-y-2">

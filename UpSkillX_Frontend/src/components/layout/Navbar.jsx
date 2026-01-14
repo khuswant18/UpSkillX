@@ -1,38 +1,31 @@
 import { useNavigate } from "react-router-dom"
 import { useState, useRef, useEffect } from "react"
 import { useLearner } from "../../context/LearnerContext"
-
 export default function Navbar() {
   const { isAuthenticated, learnerProfile, authUser, logout } = useLearner()
   const navigate = useNavigate()
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false)
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
-
   const handleLogout = () => {
     logout()
     setShowDropdown(false)
     navigate("/login")
   }
-
   if (!isAuthenticated || !learnerProfile) {
     return null
   }
-
   const userAvatar = authUser?.picture || learnerProfile?.avatar
   const userName = learnerProfile?.name || "Learner"
   const userInitials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
-
   return (
     <nav className="bg-card border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,7 +49,6 @@ export default function Navbar() {
                   </div>
                 )}
               </button>
-
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-1 z-50">
                   <div className="px-4 py-2 border-b border-border">

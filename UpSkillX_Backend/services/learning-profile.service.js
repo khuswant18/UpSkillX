@@ -1,15 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import config from "../config/config.js";
 import prisma from "../db/config.js";
-
 const genAI = new GoogleGenerativeAI(config.geminiApiKey);
-
-/**
- * Generate a comprehensive learning skill profile from interview and quiz data
- */
 export async function generateLearningSkillProfile(userId) {
   try {
-    // Fetch user's interview history
     const interviews = await prisma.interview.findMany({
       where: { userId, status: "completed" },
       orderBy: { completedAt: "desc" },
@@ -28,8 +22,6 @@ export async function generateLearningSkillProfile(userId) {
         completedAt: true,
       },
     });
-
-    // Fetch user's quiz results
     const quizResults = await prisma.quizResult.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -44,7 +36,6 @@ export async function generateLearningSkillProfile(userId) {
         createdAt: true,
       },
     });
-
     if (interviews.length === 0 && quizResults.length === 0) {
       return {
         message:
@@ -52,7 +43,6 @@ export async function generateLearningSkillProfile(userId) {
         hasData: false,
       };
     }
-
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash-exp",
       generationConfig: {
@@ -61,20 +51,15 @@ export async function generateLearningSkillProfile(userId) {
         responseMimeType: "application/json",
       },
     });
-
     const prompt = `
 You are an expert learning advisor and career coach. Analyze this learner's complete performance data from interviews and quizzes to create a comprehensive learning skill profile.
-
 INTERVIEW HISTORY (${interviews.length} interviews):
 ${JSON.stringify(interviews, null, 2)}
-
 QUIZ PERFORMANCE (${quizResults.length} quizzes):
 ${JSON.stringify(quizResults, null, 2)}
-
 Create a comprehensive learning skill profile in this exact JSON format:
 {
   "overallSummary": "A comprehensive 250-300 word summary of the learner's journey, progress, patterns, and potential",
-  
   "skillLevels": {
     "technical": {
       "level": "intermediate",
@@ -101,7 +86,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
       "description": "Analysis based on quiz performance"
     }
   },
-  
   "coreStrengths": [
     {
       "skill": "React Development",
@@ -110,7 +94,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
       "applications": ["Can build complex SPAs", "Strong component design"]
     }
   ],
-  
   "improvementAreas": [
     {
       "skill": "System Design",
@@ -121,14 +104,12 @@ Create a comprehensive learning skill profile in this exact JSON format:
       "estimatedTimeToImprove": "3-4 months"
     }
   ],
-  
   "learningStyle": {
     "preferredMethod": "hands-on practice",
     "strengths": ["Quick to grasp concepts", "Good retention"],
     "challenges": ["Needs more practice with complex scenarios"],
     "recommendations": "Focus on project-based learning"
   },
-  
   "performanceTrends": {
     "interviewScores": {
       "trend": "improving",
@@ -143,7 +124,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
       "improvementNeeded": "System Design"
     }
   },
-  
   "technologyProficiency": [
     {
       "technology": "JavaScript",
@@ -162,7 +142,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
       "confidence": "medium"
     }
   ],
-  
   "personalizedRecommendations": [
     {
       "category": "skill-development",
@@ -184,7 +163,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
       ]
     }
   ],
-  
   "careerReadiness": {
     "targetRole": "Senior Software Engineer",
     "currentReadiness": 65,
@@ -200,7 +178,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
       "Build 2 production-grade projects"
     ]
   },
-  
   "motivationalInsights": {
     "achievedGoals": 12,
     "consistencyScore": 85,
@@ -208,7 +185,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
     "learningStreak": 15,
     "encouragement": "You've shown consistent improvement in technical interviews. Keep practicing!"
   },
-  
   "nextSteps": {
     "immediate": [
       "Take a system design quiz to assess current level",
@@ -227,7 +203,6 @@ Create a comprehensive learning skill profile in this exact JSON format:
     ]
   }
 }
-
 Guidelines:
 - Be specific and data-driven
 - Identify clear patterns and trends
@@ -238,11 +213,9 @@ Guidelines:
 - Give realistic timelines
 - Focus on growth mindset
 `;
-
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
-
     let cleanText = text.trim();
     if (cleanText.startsWith("```json")) {
       cleanText = cleanText.replace(/```json\n?/g, "").replace(/```\n?$/g, "");
@@ -250,10 +223,7 @@ Guidelines:
       cleanText = cleanText.replace(/```\n?/g, "");
     }
     cleanText = cleanText.trim();
-
     const profileData = JSON.parse(cleanText);
-
-    // Add metadata
     profileData.generatedAt = new Date().toISOString();
     profileData.dataPoints = {
       interviews: interviews.length,
@@ -261,20 +231,14 @@ Guidelines:
       totalActivities: interviews.length + quizResults.length,
     };
     profileData.hasData = true;
-
     return profileData;
   } catch (error) {
     console.error("Error generating learning skill profile:", error);
     throw error;
   }
 }
-
-/**
- * Generate quick skill summary (lighter version)
- */
 export async function generateQuickSkillSummary(userId) {
   try {
-    // Get recent data only
     const recentInterviews = await prisma.interview.findMany({
       where: { userId, status: "completed" },
       orderBy: { completedAt: "desc" },
@@ -286,7 +250,6 @@ export async function generateQuickSkillSummary(userId) {
         technologies: true,
       },
     });
-
     const recentQuizzes = await prisma.quizResult.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -297,27 +260,21 @@ export async function generateQuickSkillSummary(userId) {
         level: true,
       },
     });
-
-    // Calculate averages
     const avgInterviewScore =
       recentInterviews.length > 0
         ? recentInterviews.reduce((sum, i) => sum + (i.overallScore || 0), 0) /
           recentInterviews.length
         : 0;
-
     const avgQuizScore =
       recentQuizzes.length > 0
         ? recentQuizzes.reduce((sum, q) => sum + q.percentage, 0) /
           recentQuizzes.length
         : 0;
-
-    // Collect all weak areas and strengths
     const allWeakAreas = recentInterviews.flatMap((i) => i.weakAreas || []);
     const allStrengths = recentInterviews.flatMap((i) => i.strengths || []);
     const allTechnologies = [
       ...new Set(recentInterviews.flatMap((i) => i.technologies || [])),
     ];
-
     return {
       summary: {
         totalInterviews: recentInterviews.length,
@@ -337,15 +294,10 @@ export async function generateQuickSkillSummary(userId) {
     throw error;
   }
 }
-
-/**
- * Compare performance over time periods
- */
 export async function getPerformanceComparison(userId, period = "month") {
   try {
     const now = new Date();
     let startDate;
-
     switch (period) {
       case "week":
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -359,7 +311,6 @@ export async function getPerformanceComparison(userId, period = "month") {
       default:
         startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     }
-
     const interviews = await prisma.interview.findMany({
       where: {
         userId,
@@ -375,7 +326,6 @@ export async function getPerformanceComparison(userId, period = "month") {
         completedAt: true,
       },
     });
-
     const quizzes = await prisma.quizResult.findMany({
       where: {
         userId,
@@ -388,7 +338,6 @@ export async function getPerformanceComparison(userId, period = "month") {
         createdAt: true,
       },
     });
-
     return {
       period,
       startDate,
@@ -419,21 +368,13 @@ export async function getPerformanceComparison(userId, period = "month") {
     throw error;
   }
 }
-
-/**
- * Helper function to calculate trend
- */
 function calculateTrend(scores) {
   if (scores.length < 2) return "insufficient_data";
-
   const firstHalf = scores.slice(0, Math.ceil(scores.length / 2));
   const secondHalf = scores.slice(Math.ceil(scores.length / 2));
-
   const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
   const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
-
   const change = ((secondAvg - firstAvg) / firstAvg) * 100;
-
   if (change > 10) return "significantly_improving";
   if (change > 3) return "improving";
   if (change < -10) return "declining";

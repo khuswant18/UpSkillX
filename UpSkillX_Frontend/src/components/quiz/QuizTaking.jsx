@@ -1,4 +1,3 @@
-// filepath: src/components/quiz/QuizTaking.jsx
 import { useState, useEffect } from "react";
 import {
   ArrowLeft,
@@ -8,46 +7,34 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Button from "../common/Button";
-
-// 🔥 SAFELY NORMALIZE ANY QUESTION SHAPE
 function normalizeQuestions(rawQuestions, quiz) {
   if (!Array.isArray(rawQuestions) || rawQuestions.length === 0) {
     console.warn("⚠ No valid generatedQuestions. Using fallback questions.");
     return generateFallbackQuestions(quiz);
   }
-
   return rawQuestions.map((q, index) => {
     const id = q.id || q._id || index + 1;
-
     const questionText =
       q.question ||
       q.questionText ||
       q.text ||
       `Question ${index + 1}`;
-
     const options =
       q.options ||
       q.choices ||
       q.answers ||
       ["Option 1", "Option 2", "Option 3", "Option 4"];
-
     let correctAnswerIndex = 0;
-
-    // If backend returned "answer": "Correct Option"
     if (q.answer && Array.isArray(options)) {
       const idx = options.findIndex((opt) => opt === q.answer);
       correctAnswerIndex = idx !== -1 ? idx : 0;
     }
-
-    // If backend returned numeric correct index
     if (typeof q.correctAnswerIndex === "number") {
       correctAnswerIndex = q.correctAnswerIndex;
     }
-
     if (typeof q.correctAnswer === "number") {
       correctAnswerIndex = q.correctAnswer;
     }
-
     return {
       id,
       question: questionText,
@@ -56,8 +43,6 @@ function normalizeQuestions(rawQuestions, quiz) {
     };
   });
 }
-
-// 🔥 Fallback (if no AI questions)
 function generateFallbackQuestions(quiz) {
   const questions = [
     {
@@ -89,40 +74,30 @@ function generateFallbackQuestions(quiz) {
       correctAnswer: 1,
     },
   ];
-
   return questions.slice(0, Math.min(quiz.questions, questions.length));
 }
-
 export default function QuizTaking({ quiz, onComplete, onBack }) {
-  // Normalize questions safely
   const [questions] = useState(() => {
     if (quiz.generatedQuestions?.length > 0) {
       return normalizeQuestions(quiz.generatedQuestions, quiz);
     }
     return generateFallbackQuestions(quiz);
   });
-
   const [current, setCurrent] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [timeElapsed, setTimeElapsed] = useState(0);
-
   const totalQuestions = questions.length;
   const q = questions[current];
   const progress = ((current + 1) / totalQuestions) * 100;
-
-  // Timer
   useEffect(() => {
     const timer = setInterval(() => setTimeElapsed((t) => t + 1), 1000);
     return () => clearInterval(timer); // cleanup
   }, []);
-
   const formatTime = (sec) =>
     `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
-
   const handleSelect = (index) => {
     setSelectedAnswers({ ...selectedAnswers, [q.id]: index });
   };
-
   const handleSubmit = () => {
     const answers = questions.map((q) => ({
       questionId: q.id,
@@ -130,30 +105,26 @@ export default function QuizTaking({ quiz, onComplete, onBack }) {
       correctAnswer: q.correctAnswer,
       isCorrect: selectedAnswers[q.id] === q.correctAnswer,
     }));
-
     onComplete({
       answers,
       totalQuestions,
       timeElapsed,
     });
   };
-
   const isLast = current === totalQuestions - 1;
   const answeredCurrent = selectedAnswers[q.id] !== undefined;
-
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 px-4 py-8 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-4xl">
-          {/* Back Button */}
+          {}
           <button
             onClick={onBack}
             className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Quizzes
           </button>
-
-          {/* Header */}
+          {}
           <div className="border border-border bg-card p-6 rounded-xl mb-8">
             <div className="flex justify-between items-start mb-4">
               <div>
@@ -164,21 +135,18 @@ export default function QuizTaking({ quiz, onComplete, onBack }) {
                   Question {current + 1} of {totalQuestions}
                 </p>
               </div>
-
               <div className="text-sm flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="font-mono text-foreground">{formatTime(timeElapsed)}</span>
               </div>
             </div>
-
-            {/* Progress Bar */}
+            {}
             <div className="h-2 bg-muted rounded-full">
               <div
                 className="h-2 bg-primary rounded-full transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
-
             <div className="flex justify-between text-xs text-muted-foreground mt-2">
               <span>
                 {Object.keys(selectedAnswers).length} of {totalQuestions} answered
@@ -186,15 +154,12 @@ export default function QuizTaking({ quiz, onComplete, onBack }) {
               <span>{Math.round(progress)}% complete</span>
             </div>
           </div>
-
-          {/* Question Card */}
+          {}
           <div className="border border-border bg-card p-8 rounded-xl mb-6">
             <h2 className="text-xl font-semibold mb-6">{q.question}</h2>
-
             <div className="space-y-3">
               {q.options.map((opt, idx) => {
                 const isSelected = selectedAnswers[q.id] === idx;
-
                 return (
                   <button
                     key={idx}
@@ -220,8 +185,7 @@ export default function QuizTaking({ quiz, onComplete, onBack }) {
               })}
             </div>
           </div>
-
-          {/* Navigation */}
+          {}
           <div className="flex justify-between items-center">
             <Button
               variant="outline"
@@ -230,7 +194,6 @@ export default function QuizTaking({ quiz, onComplete, onBack }) {
             >
               <ChevronLeft className="h-4 w-4 mr-2" /> Previous
             </Button>
-
             <Button
               variant="primary"
               disabled={!answeredCurrent}

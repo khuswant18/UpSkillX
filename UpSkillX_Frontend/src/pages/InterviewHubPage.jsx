@@ -1,11 +1,9 @@
 import { useState } from "react"
 import { MessageSquare, Calendar, CheckCircle2, ArrowRight, Menu } from "lucide-react"
-
 import LearningSidebar from "../components/layout/LearningSidebar"
 import Button from "../components/common/Button"
 import Badge from "../components/common/Badge"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card"
-
 const technicalQuestions = [
   {
     id: 1, 
@@ -32,7 +30,6 @@ const technicalQuestions = [
     category: "Database",
   },
 ]
-
 const behavioralQuestions = [
   {
     id: 1,
@@ -55,7 +52,6 @@ const behavioralQuestions = [
     category: "Leadership",
   },
 ]
-
 const hrQuestions = [
   {
     id: 1,
@@ -78,11 +74,9 @@ const hrQuestions = [
     category: "Career Change",
   },
 ]
-
 export default function InterviewHubPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("technical")
-
   const renderQuestions = (questions, options = {}) => (
     <div className="grid grid-cols-1 gap-4">
       {questions.map((question) => (
@@ -119,11 +113,9 @@ export default function InterviewHubPage() {
       ))}
     </div>
   )
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <LearningSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
       <div className="flex min-h-screen flex-col lg:pl-72">
         <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-4 backdrop-blur supports-backdrop-filter:bg-background/80 lg:hidden">
           <button
@@ -139,7 +131,6 @@ export default function InterviewHubPage() {
             <p className="text-base font-semibold">Interview Preparation</p>
           </div>
         </header>
-
         <main className="flex-1 px-4 py-10 sm:px-8 lg:px-12">
           <div className="mx-auto w-full max-w-6xl">
             <div className="mb-12 hidden lg:block">
@@ -149,7 +140,6 @@ export default function InterviewHubPage() {
                 Prepare for your next interview with our comprehensive question bank and mock interview sessions. Practice makes perfect.
               </p>
             </div>
-
             <Card className="mb-12 border border-primary/30 bg-primary/5">
               <CardHeader>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -177,7 +167,6 @@ export default function InterviewHubPage() {
                 </Button>
               </CardContent>
             </Card>
-
             <section className="mb-8 flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-semibold">Question Bank</h2>
@@ -200,12 +189,9 @@ export default function InterviewHubPage() {
                 )}
               </div>
             </section>
-
             {activeTab === "technical" && renderQuestions(technicalQuestions)}
-
             {activeTab === "behavioral" &&
               renderQuestions(behavioralQuestions, { buttonLabel: "View Answer Framework", buttonVariant: "ghost" })}
-
             {activeTab === "hr" &&
               renderQuestions(hrQuestions, { buttonLabel: "View Best Practices", buttonVariant: "ghost" })}
           </div>

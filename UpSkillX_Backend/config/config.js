@@ -1,7 +1,5 @@
 import dotenv from "dotenv";
-
 dotenv.config();
-
 const config = {
   port: process.env.PORT || 3000,
   vapiPublicKey: process.env.VAPI_PUBLIC_KEY,
@@ -11,5 +9,4 @@ const config = {
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
 };
-
 export default config;

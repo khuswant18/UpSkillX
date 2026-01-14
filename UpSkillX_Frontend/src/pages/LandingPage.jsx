@@ -3,13 +3,11 @@ import { Link, useNavigate } from "react-router-dom"
 import { useLearner } from "../context/LearnerContext"
 import Button from "../components/common/Button"
 import { ArrowRight, BookOpen, MessageSquare, CheckCircle2, Sparkles } from "lucide-react"
-
 export default function LandingPage() {
   const navigate = useNavigate()
   const { isAuthenticated, learnerProfile, authUser, logout } = useLearner()
   const [showDropdown, setShowDropdown] = useState(false)
   const dropdownRef = useRef(null)
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -19,20 +17,17 @@ export default function LandingPage() {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
-
   const handleLogout = () => {
     logout()
     setShowDropdown(false)
     navigate("/")
   }
-
   const userAvatar = authUser?.picture || learnerProfile?.avatar
   const userName = learnerProfile?.name || authUser?.name || "User"
   const userInitials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
-
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
+      {}
       <header className="sticky top-0 z-50 border-b bg-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center gap-2">
@@ -41,7 +36,6 @@ export default function LandingPage() {
             </div>
             <span className="text-xl font-bold text-slate-900">UpSkillX</span>
           </Link>
-
           <div className="flex items-center gap-3">
             {!isAuthenticated ? (
               <>
@@ -73,7 +67,6 @@ export default function LandingPage() {
                     </div>
                   )}
                 </button>
-
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-48 overflow-hidden rounded-xl border bg-white shadow-lg">
                     <div className="border-b px-4 py-3">
@@ -99,8 +92,7 @@ export default function LandingPage() {
           </div>
         </div>
       </header>
-
-      {/* Hero Section */}
+      {}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
@@ -110,7 +102,6 @@ export default function LandingPage() {
           <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600">
             Practice mock interviews with AI, take quizzes, and get personalized feedback to land your dream job.
           </p>
-
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <button
               onClick={() => navigate(isAuthenticated ? '/interviews' : '/signup')}
@@ -126,8 +117,7 @@ export default function LandingPage() {
               Try a Quiz
             </button>
           </div>
-
-          {/* Stats */}
+          {}
           <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
               { value: "7+", label: "Job Roles" },
@@ -143,12 +133,11 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Features Section */}
+      {}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 md:grid-cols-2">
-            {/* Quiz Card */}
+            {}
             <div className="rounded-xl border bg-slate-50 p-8">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
                 <BookOpen className="h-6 w-6 text-blue-600" />
@@ -173,8 +162,7 @@ export default function LandingPage() {
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
-
-            {/* Interview Card */}
+            {}
             <div className="rounded-xl border bg-slate-50 p-8">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                 <MessageSquare className="h-6 w-6 text-green-600" />
@@ -202,8 +190,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* CTA Section */}
+      {}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl rounded-xl bg-blue-600 p-8 text-center text-white">
           <h2 className="text-2xl font-bold sm:text-3xl">
@@ -220,8 +207,7 @@ export default function LandingPage() {
           </button>
         </div>
       </section>
-
-      {/* Footer */}
+      {}
       <footer className="border-t bg-white px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl text-center">
           <div className="flex items-center justify-center gap-2">

@@ -1,10 +1,7 @@
 import { Navigate } from "react-router-dom"
 import { useLearner } from "../context/LearnerContext"
-
 export default function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useLearner()
-
-  // Show nothing while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -15,10 +12,8 @@ export default function PrivateRoute({ children }) {
       </div>
     )
   }
-
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
-
   return children
 }

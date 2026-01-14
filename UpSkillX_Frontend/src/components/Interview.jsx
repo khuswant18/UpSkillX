@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Vapi from "@vapi-ai/web";
 import { useLearner } from "../context/LearnerContext";
 import { ArrowLeft, Mic, MicOff, Phone, PhoneOff, User, Clock, ChevronDown, Check, RotateCcw, AlertCircle, Loader2 } from "lucide-react";
-
 function Interview() {
   const navigate = useNavigate();
   const { learnerProfile, refreshProfile, loading: profileLoading } = useLearner();
@@ -21,19 +20,15 @@ function Interview() {
   const [connectionTimeout, setConnectionTimeout] = useState(null);
   const transcriptEndRef = useRef(null);
   const timerIntervalRef = useRef(null);
-
-  // Refs to store latest values for use in Vapi callbacks (fixes stale closure issue)
   const interviewIdRef = useRef(null);
   const transcriptRef = useRef([]);
   const callDurationRef = useRef(0);
-
   const [formData, setFormData] = useState({
     userId: learnerProfile?.id || `user_${Date.now()}`,
     role: learnerProfile?.role || "",
     interviewType: "mixed",
     technologies: learnerProfile?.skills || [],
   });
-
   useEffect(() => {
     if (learnerProfile) {
       setFormData((prev) => ({
@@ -44,8 +39,6 @@ function Interview() {
       }));
     }
   }, [learnerProfile]);
-
-  // Refresh profile if id is missing after initial load (only once)
   const hasAttemptedRefresh = useRef(false);
   useEffect(() => {
     if (!profileLoading && (!learnerProfile || !learnerProfile.id) && !hasAttemptedRefresh.current) {
@@ -54,32 +47,24 @@ function Interview() {
       refreshProfile();
     }
   }, [profileLoading, learnerProfile, refreshProfile]);
-
   useEffect(() => {
     if (transcriptEndRef.current) {
       transcriptEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [transcript]);
-
-  // Keep refs in sync with state for use in Vapi callbacks
   useEffect(() => {
     interviewIdRef.current = interviewId;
   }, [interviewId]);
-
   useEffect(() => {
     transcriptRef.current = transcript;
   }, [transcript]);
-
   useEffect(() => {
     callDurationRef.current = callDuration;
   }, [callDuration]);
-
   const vapiRef = useRef(null);
-
   useEffect(() => {
     const currentTimer = timerIntervalRef.current;
     return () => {
-      // Only stop Vapi if the component is actually unmounting or we explicitly want to
       if (vapiRef.current) {
         try {
           console.log("🧹 Cleaning up Vapi instance on unmount");
@@ -90,8 +75,6 @@ function Interview() {
       if (connectionTimeout) clearTimeout(connectionTimeout);
     };
   }, []); // Run only on mount/unmount
-
-  // Handle connection timeout cleanup separately
   useEffect(() => {
     return () => {
       if (connectionTimeout) {
@@ -100,7 +83,6 @@ function Interview() {
       }
     };
   }, [connectionTimeout]);
-
   const roles = [
     "Full Stack Developer",
     "Frontend Developer",
@@ -110,7 +92,6 @@ function Interview() {
     "DevOps Engineer",
     "Mobile Developer",
   ];
-
   const techOptions = {
     "Full Stack Developer": ["React", "Node.js", "MongoDB", "PostgreSQL", "Express", "TypeScript"],
     "Frontend Developer": ["React", "Vue.js", "Angular", "TypeScript", "Next.js", "CSS/SCSS"],
@@ -120,20 +101,17 @@ function Interview() {
     "DevOps Engineer": ["Docker", "Kubernetes", "Jenkins", "AWS", "Terraform", "CI/CD"],
     "Mobile Developer": ["React Native", "Flutter", "Swift", "Kotlin", "Firebase"],
   };
-
   const interviewTypes = [
     { id: "technical", label: "Technical", description: "Coding & system design" },
     { id: "behavioral", label: "Behavioral", description: "Soft skills & leadership" },
     { id: "mixed", label: "Mixed", description: "Both types combined" },
   ];
-
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (field === "role") {
       setFormData((prev) => ({ ...prev, technologies: [] }));
     }
   };
-
   const toggleTechnology = (tech) => {
     setFormData((prev) => ({
       ...prev,
@@ -142,12 +120,10 @@ function Interview() {
         : [...prev.technologies, tech],
     }));
   };
-
   const updateStatus = (message, type = "info") => {
     setStatus(message);
     setStatusType(type);
   };
-
   const startInterview = async () => {
     if (!formData.role) {
       updateStatus("Please select a role first", "error");
@@ -157,28 +133,22 @@ function Interview() {
       updateStatus("Please select at least one technology", "error");
       return;
     }
-
-    // Get userId from learnerProfile at call time (not from formData which may be stale)
     const userId = learnerProfile?.id;
     if (!userId) {
       updateStatus("User profile not loaded. Please refresh the page.", "error");
       return;
     }
-
     const interviewPayload = {
       userId,
       role: formData.role,
       interviewType: formData.interviewType,
       technologies: formData.technologies,
     };
-
     console.log("\n========== STARTING INTERVIEW ==========");
     console.log("📤 Interview payload:", interviewPayload);
     console.log("🔑 Auth token exists:", !!localStorage.getItem("authToken"));
     setIsLoading(true);
     updateStatus("Generating your personalized interview...", "loading");
-
-    // Cleanup previous instance
     if (vapiRef.current) {
       try {
         console.log("🧹 Stopping previous Vapi instance before starting new one");
@@ -186,7 +156,6 @@ function Interview() {
       } catch (e) { }
       vapiRef.current = null;
     }
-
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -194,11 +163,9 @@ function Interview() {
         setIsLoading(false);
         return;
       }
-
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       console.log("🌐 API URL:", API_URL);
       console.log("📤 Fetching:", `${API_URL}/interview/start-interview`);
-
       const res = await fetch(`${API_URL}/interview/start-interview`, {
         method: "POST",
         headers: {
@@ -207,16 +174,13 @@ function Interview() {
         },
         body: JSON.stringify(interviewPayload),
       });
-
       console.log("📥 Response status:", res.status);
       console.log("📥 Response ok:", res.ok);
-
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         console.error("❌ API Error Response:", errData);
         throw new Error(errData.error || `Server error (${res.status})`);
       }
-
       const data = await res.json();
       console.log("✅ API Response data:", {
         success: data.success,
@@ -225,23 +189,18 @@ function Interview() {
         interviewId: data.interviewId,
         hasSystemPrompt: !!data.systemPrompt
       });
-
       if (!data.success) {
         console.error("❌ Interview start failed:", data.error);
         throw new Error(data.error || "Failed to start interview");
       }
-
       if (!data.publicKey) {
         console.error("❌ CRITICAL: No Vapi public key received from server!");
         throw new Error("Vapi configuration missing. Check server environment.");
       }
-
       setInterviewInfo(data.interviewConfig);
       setInterviewId(data.interviewId);
       setStep(2);
       updateStatus("Connecting to AI interviewer...", "loading");
-
-      // Set connection timeout (30 seconds)
       const timeout = setTimeout(() => {
         if (!isConnected) {
           updateStatus("Connection timed out. Please try again.", "error");
@@ -256,12 +215,10 @@ function Interview() {
         }
       }, 30000);
       setConnectionTimeout(timeout);
-
       console.log("🎬 Initializing Vapi with public key:", data.publicKey.substring(0, 10) + "...");
       const vapi = new Vapi(data.publicKey);
       setVapiInstance(vapi);
       vapiRef.current = vapi;
-
       vapi.on("call-start", () => {
         console.log("✅ VAPI: Call started successfully!");
         clearTimeout(timeout);
@@ -269,31 +226,25 @@ function Interview() {
         setIsConnected(true);
         setIsLoading(false);
         updateStatus("Interview in progress - speak clearly!", "success");
-
         const startTime = Date.now();
         timerIntervalRef.current = setInterval(() => {
           setCallDuration(Math.floor((Date.now() - startTime) / 1000));
         }, 1000);
       });
-
       vapi.on("call-end", async () => {
-        // Use refs to get latest values (fixes stale closure issue)
         const currentInterviewId = interviewIdRef.current;
         const currentTranscript = transcriptRef.current;
         const currentDuration = callDurationRef.current;
-
         console.log("📞 VAPI: Call ended");
         console.log("📞 Interview ID (from ref):", currentInterviewId);
         console.log("📞 Transcript length (from ref):", currentTranscript.length);
         console.log("📞 Duration (from ref):", currentDuration);
-
         setIsConnected(false);
         setIsSpeaking(false);
         if (timerIntervalRef.current) {
           clearInterval(timerIntervalRef.current);
           timerIntervalRef.current = null;
         }
-
         if (currentInterviewId && currentTranscript.length > 0) {
           try {
             updateStatus("Saving interview and generating feedback...", "loading");
@@ -302,7 +253,6 @@ function Interview() {
               transcriptLength: currentTranscript.length,
               duration: currentDuration
             });
-
             const response = await fetch(`${API_URL}/interview/complete`, {
               method: "POST",
               headers: {
@@ -315,10 +265,8 @@ function Interview() {
                 duration: currentDuration,
               }),
             });
-
             const result = await response.json();
             console.log("📥 Complete interview response:", result);
-
             if (result.success) {
               await refreshProfile();
               updateStatus("Interview complete! Check your Dashboard for feedback.", "success");
@@ -335,20 +283,16 @@ function Interview() {
           updateStatus("Interview ended.", "info");
         }
       });
-
       vapi.on("speech-start", () => {
         console.log("🗣️ VAPI: AI Speech started");
         setIsSpeaking(true);
       });
-
       vapi.on("speech-end", () => {
         console.log("🤐 VAPI: AI Speech ended");
         setIsSpeaking(false);
       });
-
       vapi.on("message", (msg) => {
         console.log("💬 VAPI Message received:", msg.type, msg);
-
         if (msg.type === "transcript" && msg.transcriptType === "final") {
           console.log("📝 Transcript:", msg.role, "-", msg.transcript);
           const speaker = msg.role === "assistant" ? "AI" : "You";
@@ -358,7 +302,6 @@ function Interview() {
           ]);
         }
       });
-
       vapi.on("error", (error) => {
         console.error("❌ VAPI Error Event:", error);
         console.error("❌ VAPI Error details:", JSON.stringify(error, null, 2));
@@ -367,12 +310,8 @@ function Interview() {
         setIsLoading(false);
         clearTimeout(timeout);
       });
-
-      // Listen to all other events for debugging
       vapi.on("volume-level", (volume) => {
-        // Too noisy, skip logging
       });
-
       const callConfig = {
         name: `${formData.role} Interview`,
         transcriber: { provider: "deepgram", model: "nova-2", language: "en-US" },
@@ -388,14 +327,12 @@ function Interview() {
         },
         firstMessage: `Hello! I'm your interviewer for the ${formData.role} position. Let's start with a simple question - tell me about yourself and your experience.`,
       };
-
       console.log("🎬 Starting Vapi call with config:", {
         name: callConfig.name,
         transcriber: callConfig.transcriber,
         model: { ...callConfig.model, messages: "[REDACTED]" },
         voice: callConfig.voice
       });
-
       await vapi.start(callConfig);
       console.log("✅ Vapi start() called successfully");
     } catch (err) {
@@ -406,7 +343,6 @@ function Interview() {
       setIsLoading(false);
     }
   };
-
   const stopInterview = async () => {
     if (vapiRef.current) {
       try {
@@ -416,17 +352,14 @@ function Interview() {
       vapiRef.current = null;
     }
     setVapiInstance(null);
-
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     }
-
     setIsConnected(false);
     setIsSpeaking(false);
     updateStatus("Interview ended", "info");
   };
-
   const resetForm = () => {
     stopInterview();
     setStep(1);
@@ -442,13 +375,11 @@ function Interview() {
     setCallDuration(0);
     updateStatus("Configure your interview settings below", "info");
   };
-
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
-
   const getStatusIcon = () => {
     switch (statusType) {
       case "loading": return <Loader2 className="h-4 w-4 animate-spin" />;
@@ -457,10 +388,9 @@ function Interview() {
       default: return null;
     }
   };
-
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Loading state */}
+      {}
       {profileLoading && (
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
@@ -469,8 +399,7 @@ function Interview() {
           </div>
         </div>
       )}
-
-      {/* Error state - profile not loaded after attempt */}
+      {}
       {!profileLoading && !learnerProfile?.id && (
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center max-w-md p-6">
@@ -500,11 +429,10 @@ function Interview() {
           </div>
         </div>
       )}
-
-      {/* Main content - only show when profile is loaded */}
+      {}
       {!profileLoading && learnerProfile?.id && (
         <>
-          {/* Header */}
+          {}
           <div className="border-b bg-white">
             <div className="mx-auto max-w-4xl px-4 py-4">
               <div className="flex items-center justify-between">
@@ -525,9 +453,8 @@ function Interview() {
               </div>
             </div>
           </div>
-
           <div className="mx-auto max-w-4xl px-4 py-8">
-            {/* Status Bar */}
+            {}
             <div className={`mb-6 flex items-center gap-3 rounded-lg px-4 py-3 ${statusType === "error" ? "bg-red-50 text-red-700" :
               statusType === "success" ? "bg-green-50 text-green-700" :
                 statusType === "loading" ? "bg-blue-50 text-blue-700" :
@@ -536,17 +463,15 @@ function Interview() {
               {getStatusIcon()}
               <p className="text-sm font-medium">{status}</p>
             </div>
-
-            {/* Step 1: Configuration */}
+            {}
             {step === 1 && (
               <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-200 px-6 py-4">
                   <h2 className="text-lg font-semibold text-slate-900">Interview Configuration</h2>
                   <p className="text-sm text-slate-500">Set up your mock interview session</p>
                 </div>
-
                 <div className="space-y-6 p-6">
-                  {/* Role Selection */}
+                  {}
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
                       Select Role <span className="text-red-500">*</span>
@@ -565,8 +490,7 @@ function Interview() {
                       <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                     </div>
                   </div>
-
-                  {/* Interview Type */}
+                  {}
                   <div>
                     <label className="mb-3 block text-sm font-medium text-slate-700">
                       Interview Type <span className="text-red-500">*</span>
@@ -590,8 +514,7 @@ function Interview() {
                       ))}
                     </div>
                   </div>
-
-                  {/* Technologies */}
+                  {}
                   {formData.role && (
                     <div>
                       <label className="mb-3 block text-sm font-medium text-slate-700">
@@ -615,8 +538,7 @@ function Interview() {
                       </div>
                     </div>
                   )}
-
-                  {/* Start Button */}
+                  {}
                   <button
                     onClick={startInterview}
                     disabled={!formData.role || formData.technologies.length === 0 || isLoading}
@@ -634,11 +556,10 @@ function Interview() {
                 </div>
               </div>
             )}
-
-            {/* Step 2: Interview Session */}
+            {}
             {step === 2 && (
               <div className="space-y-6">
-                {/* Interview Info */}
+                {}
                 <div className="rounded-lg border border-slate-200 bg-white p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -654,10 +575,9 @@ function Interview() {
                     </div>
                   </div>
                 </div>
-
-                {/* Interview Interface */}
+                {}
                 <div className="grid gap-6 md:grid-cols-2">
-                  {/* AI Card */}
+                  {}
                   <div className="rounded-xl border border-slate-200 bg-white p-6">
                     <div className="flex flex-col items-center py-8">
                       <div className={`flex h-24 w-24 items-center justify-center rounded-full border-4 ${isSpeaking ? "border-green-500 bg-green-50" : "border-slate-200 bg-slate-50"
@@ -670,8 +590,7 @@ function Interview() {
                       </p>
                     </div>
                   </div>
-
-                  {/* User Card */}
+                  {}
                   <div className="rounded-xl border border-slate-200 bg-white p-6">
                     <div className="flex flex-col items-center py-8">
                       <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-blue-200 bg-blue-50">
@@ -684,8 +603,7 @@ function Interview() {
                     </div>
                   </div>
                 </div>
-
-                {/* Action Buttons */}
+                {}
                 <div className="flex gap-3">
                   <button
                     onClick={stopInterview}
@@ -702,8 +620,7 @@ function Interview() {
                     New
                   </button>
                 </div>
-
-                {/* Transcript */}
+                {}
                 {transcript.length > 0 && (
                   <div className="rounded-xl border border-slate-200 bg-white p-6">
                     <h3 className="mb-4 text-lg font-semibold text-slate-900">Conversation</h3>
@@ -723,8 +640,7 @@ function Interview() {
                     </div>
                   </div>
                 )}
-
-                {/* Go to Dashboard */}
+                {}
                 {!isConnected && transcript.length > 0 && (
                   <button
                     onClick={() => navigate("/dashboard")}
@@ -741,5 +657,4 @@ function Interview() {
     </div>
   );
 }
-
 export default Interview;

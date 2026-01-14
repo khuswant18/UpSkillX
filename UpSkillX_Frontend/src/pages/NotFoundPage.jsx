@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
 import Button from "../components/common/Button"
-
 export default function NotFoundPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">

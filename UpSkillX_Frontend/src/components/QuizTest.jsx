@@ -1,20 +1,17 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLearner } from "../context/LearnerContext";
-
 function QuizTest() {
   const location = useLocation();
   const navigate = useNavigate();
   const { category, subtopics } = location.state || {};
   const { refreshProfile } = useLearner();
-
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
-
   useEffect(() => {
     if (!category || !subtopics) {
       navigate("/quiz");
@@ -22,12 +19,10 @@ function QuizTest() {
     }
     fetchQuizQuestions();
   }, []);
-
   const fetchQuizQuestions = async () => {
     try {
       setLoading(true);
       const prompt = `${category} - ${subtopics.join(", ")}`;
-      
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       const response = await fetch(`${API_URL}/quiz/generate`, {
         method: "POST",
@@ -37,9 +32,7 @@ function QuizTest() {
           numberOfQuestions: 10
         }),
       });
-
       const data = await response.json();
-      
       if (data.success) {
         setQuestions(data.questions);
       } else {
@@ -54,37 +47,30 @@ function QuizTest() {
       setLoading(false);
     }
   };
-
   const handleAnswerSelect = (answer) => {
     setSelectedAnswers(prev => ({
       ...prev,
       [currentQuestion]: answer
     }));
   };
-
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     }
   };
-
   const handlePrevious = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(prev => prev - 1);
     }
   };
-
   const handleSubmit = async () => {
-
     let correctCount = 0;
     questions.forEach((q, index) => {
       if (selectedAnswers[index] === q.answer) {
         correctCount++;
       }
     });
-
     setScore(correctCount);
-    
     try {
       const percentage = (correctCount / questions.length) * 100;
       let level = "Beginner";
@@ -92,10 +78,8 @@ function QuizTest() {
       else if (percentage >= 60) level = "Intermediate";
       else if (percentage >= 40) level = "Beginner";
       else level = "Needs Improvement";
-
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       const token = localStorage.getItem("authToken");
-      
       const response = await fetch(`${API_URL}/quiz/result`, {
         method: "POST",
         headers: { 
@@ -111,9 +95,7 @@ function QuizTest() {
           level
         }),
       });
-
       const data = await response.json();
-
       if (data.success) {
         await refreshProfile() // Refresh profile to update dashboard
         navigate(`/quiz-result`, { state: { result: data.data } })
@@ -123,10 +105,8 @@ function QuizTest() {
     } catch (error) {
       console.error("Error saving quiz result:", error)
     }
-
     setShowResult(true);
   };
-
   const getPerformanceLevel = () => {
     const percentage = (score / questions.length) * 100;
     if (percentage >= 80) return { level: "Expert", color: "#10b981", emoji: "🏆" };
@@ -134,15 +114,12 @@ function QuizTest() {
     if (percentage >= 40) return { level: "Beginner", color: "#f59e0b", emoji: "📚" };
     return { level: "Needs Improvement", color: "#ef4444", emoji: "💪" };
   };
-
   const handleRetakeQuiz = () => {
     navigate("/quiz");
   };
-
   const handleGoHome = () => {
     navigate("/"); 
   };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-8">
@@ -154,17 +131,14 @@ function QuizTest() {
       </div>
     );
   }
-
   if (showResult) {
     const performance = getPerformanceLevel();
     const percentage = ((score / questions.length) * 100).toFixed(1);
-
     return (
       <div className="min-h-screen bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center p-8">
         <div className="bg-white rounded-3xl p-12 max-w-2xl w-full text-center">
           <div className="text-8xl mb-6">{performance.emoji}</div>
           <h1 className="text-4xl font-bold text-gray-800 mb-8">Quiz Completed!</h1>
-          
           <div className="flex justify-center items-center gap-8 mb-8">
             <div className="text-6xl font-extrabold text-indigo-600">
               {score}/{questions.length}
@@ -173,14 +147,12 @@ function QuizTest() {
               {percentage}%
             </div>
           </div>
-          
           <div 
             className="inline-block px-10 py-4 rounded-full text-white text-2xl font-bold mb-8"
             style={{ backgroundColor: performance.color }}
           >
             {performance.level}
           </div>
-          
           <div className="bg-gray-50 p-6 rounded-2xl mb-8 text-left">
             <p className="mb-3 text-gray-700 text-lg">
               <strong>Category:</strong> {category.toUpperCase()}
@@ -189,7 +161,6 @@ function QuizTest() {
               <strong>Topics:</strong> {subtopics.join(", ")}
             </p>
           </div>
-          
           <div className="flex gap-4 justify-center">
             <button 
               onClick={handleRetakeQuiz}
@@ -208,12 +179,10 @@ function QuizTest() {
       </div>
     );
   }
-
   const currentQ = questions[currentQuestion];
-
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-500 via-purple-500 to-pink-500 py-8 px-4">
-      {/* Header */}
+      {}
       <div className="max-w-4xl mx-auto mb-8 bg-white rounded-2xl  p-6">
         <div className="mb-4">
           <div className="text-lg font-semibold text-gray-700 mb-2">
@@ -226,7 +195,6 @@ function QuizTest() {
             ></div>
           </div>
         </div>
-        
         <div className="flex justify-between items-center">
           <span className="bg-linear-to-r from-indigo-500 to-purple-600 text-white px-6 py-2 rounded-full font-semibold uppercase text-sm">
             {category}
@@ -236,12 +204,10 @@ function QuizTest() {
           </span>
         </div>
       </div>
-
       <div className="max-w-4xl mx-auto mb-8 bg-white rounded-3xl p-10">
         <h2 className="text-3xl font-bold text-gray-800 mb-10 leading-relaxed">
           {currentQ.question}
         </h2>
-        
         <div className="space-y-4">
           {currentQ.options.map((option, index) => (
             <div
@@ -264,8 +230,7 @@ function QuizTest() {
           ))}
         </div>
       </div>
-
-      {/* Navigation */}
+      {}
       <div className="max-w-4xl mx-auto mb-8 flex gap-5">
         <button 
           onClick={handlePrevious}
@@ -278,7 +243,6 @@ function QuizTest() {
         >
           ← Previous
         </button>
-        
         {currentQuestion === questions.length - 1 ? (
           <button 
             onClick={handleSubmit}
@@ -300,8 +264,7 @@ function QuizTest() {
           </button>
         )}
       </div>
-
-      {/* Question Dots */}
+      {}
       <div className="max-w-4xl mx-auto flex justify-center flex-wrap gap-3">
         {questions.map((_, index) => (
           <div
@@ -320,5 +283,4 @@ function QuizTest() {
     </div>
   );
 }
-
 export default QuizTest;

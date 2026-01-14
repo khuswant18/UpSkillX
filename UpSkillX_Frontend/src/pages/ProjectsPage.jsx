@@ -1,6 +1,5 @@
 import Navbar from "../components/layout/Navbar"
 import { FolderGit2 } from "lucide-react"
-
 export default function ProjectsPage() {
   return (
     <>

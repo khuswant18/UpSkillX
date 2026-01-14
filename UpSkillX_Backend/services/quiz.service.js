@@ -2,7 +2,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import config from "../config/config.js";
 console.log("Gemini API Key in quiz.service.js:", config.geminiApiKey);
 const genAI = new GoogleGenerativeAI(config.geminiApiKey);
-
 export async function generateQuizQuestions(prompt, numberOfQuestions = 5) {
   try {
     const model = genAI.getGenerativeModel({
@@ -13,10 +12,8 @@ export async function generateQuizQuestions(prompt, numberOfQuestions = 5) {
         responseMimeType: "application/json",
       },
     });
-
     const finalPrompt = `
 Generate ${numberOfQuestions} multiple-choice questions about ${prompt}.
-
 Return a JSON object with this EXACT structure:
 {
   "questions": [
@@ -27,7 +24,6 @@ Return a JSON object with this EXACT structure:
     }
   ]
 }
-
 Rules:
 - Generate EXACTLY ${numberOfQuestions} questions
 - Each question MUST have exactly 4 options
@@ -36,23 +32,17 @@ Rules:
 - Mix difficulty levels
 - ONLY return valid JSON, nothing else
 `;
-
     const result = await model.generateContent(finalPrompt);
     const response = result.response;
     const text = response.text();
-
     console.log("Gemini response length:", text.length);
-
     let cleanText = text.trim();
-
     if (cleanText.startsWith("```json")) {
       cleanText = cleanText.replace(/```json\n?/g, "").replace(/```\n?$/g, "");
     } else if (cleanText.startsWith("```")) {
       cleanText = cleanText.replace(/```\n?/g, "");
     }
-
     cleanText = cleanText.trim();
-
     let questionsData;
     try {
       questionsData = JSON.parse(cleanText);
@@ -67,7 +57,6 @@ Rules:
         "Clean text preview (last 500 chars):",
         cleanText.substring(cleanText.length - 500)
       );
-
       try {
         if (!cleanText.endsWith("}") && !cleanText.endsWith("]")) {
           const lastCompleteQuestionMatch = cleanText.lastIndexOf("    }");
@@ -90,15 +79,12 @@ Rules:
         );
       }
     }
-
     if (!questionsData.questions || !Array.isArray(questionsData.questions)) {
       throw new Error("Invalid questions format - missing questions array");
     }
-
     if (questionsData.questions.length === 0) {
       throw new Error("No questions were generated");
     }
-
     const validQuestions = [];
     questionsData.questions.forEach((q, index) => {
       try {
@@ -125,22 +111,18 @@ Rules:
         console.warn(`Error validating question ${index + 1}:`, err.message);
       }
     });
-
     if (validQuestions.length === 0) {
       throw new Error("No valid questions were generated");
     }
-
     console.log(
       `Generated ${validQuestions.length} valid questions out of ${questionsData.questions.length} total`
     );
-
     return { questions: validQuestions };
   } catch (error) {
     console.error("Error generating quiz questions:", error);
     throw error;
   }
 }
-
 export async function generateQuizWithFeedback(answers, prompt) {
   try {
     const model = genAI.getGenerativeModel({
@@ -151,15 +133,11 @@ export async function generateQuizWithFeedback(answers, prompt) {
         responseMimeType: "application/json",
       },
     });
-
     const feedbackPrompt = `
 You are an expert educator and quiz evaluator. Analyze the quiz answers provided below and give detailed feedback.
-
 Quiz Topic: ${prompt}
-
 User's Answers:
 ${JSON.stringify(answers, null, 2)}
-
 Provide comprehensive feedback in this exact JSON format:
 {
   "overallFeedback": "A comprehensive summary of the user's performance (150-200 words)",
@@ -198,7 +176,6 @@ Provide comprehensive feedback in this exact JSON format:
     "Specific actionable advice 3"
   ]
 }
-
 Guidelines:
 - Be specific and constructive
 - Provide detailed explanations for each question
@@ -207,11 +184,9 @@ Guidelines:
 - Give actionable recommendations
 - Be encouraging while pointing out areas for improvement
 `;
-
     const result = await model.generateContent(feedbackPrompt);
     const response = result.response;
     const text = response.text();
-
     let cleanText = text.trim();
     if (cleanText.startsWith("```json")) {
       cleanText = cleanText.replace(/```json\n?/g, "").replace(/```\n?$/g, "");
@@ -219,13 +194,10 @@ Guidelines:
       cleanText = cleanText.replace(/```\n?/g, "");
     }
     cleanText = cleanText.trim();
-
     const feedbackData = JSON.parse(cleanText);
-
     if (!feedbackData.overallFeedback || feedbackData.score === undefined) {
       throw new Error("Invalid AI feedback response structure");
     }
-
     return feedbackData;
   } catch (error) {
     console.error("Error generating quiz feedback:", error);

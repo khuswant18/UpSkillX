@@ -22,7 +22,6 @@ import {
   Legend,
 } from "recharts";
 import { TrendingUp, Award, BookOpen, MessageSquare, ArrowRight, Play } from "lucide-react";
-
 export function OverviewContent() {
   const { learnerProfile } = useLearner();
   const navigate = useNavigate();
@@ -33,31 +32,26 @@ export function OverviewContent() {
     completedInterviews: 0,
   });
   const [expandedFeedback, setExpandedFeedback] = useState({});
-
   const toggleFeedback = (interviewId) => {
     setExpandedFeedback((prev) => ({
       ...prev,
       [interviewId]: !prev[interviewId],
     }));
   };
-
   useEffect(() => {
     if (learnerProfile) {
       const quizzes = learnerProfile.quizAttempts || [];
       const interviews = learnerProfile.interviewsPracticed || [];
-
       const totalQuizzes = quizzes.length;
       const avgScore =
         totalQuizzes > 0
           ? quizzes.reduce((sum, q) => sum + (q.percentage || 0), 0) /
             totalQuizzes
           : 0;
-
       const totalInterviews = interviews.length;
       const completedInterviews = interviews.filter(
         (i) => i.status === "completed"
       ).length;
-
       setStats({
         totalQuizzes,
         avgScore: Math.round(avgScore * 10) / 10,
@@ -66,8 +60,6 @@ export function OverviewContent() {
       });
     }
   }, [learnerProfile]);
-
-  // Prepare quiz chart data
   const quizChartData = (learnerProfile?.quizAttempts || [])
     .slice(-6)
     .map((quiz, index) => ({
@@ -75,18 +67,15 @@ export function OverviewContent() {
       score: quiz.percentage || 0,
       total: 100,
     }));
-
-  // Prepare skills chart data
   const skillsChartData = (learnerProfile?.skills || [])
     .slice(0, 5)
     .map((skill) => ({
       skill,
       progress: 75, // Default progress since we don't track individual skill progress yet
     }));
-
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {}
       <div>
         <h2 className="text-3xl font-bold text-gray-900">
           Welcome back, {learnerProfile?.name || "Learner"}! 👋
@@ -95,8 +84,7 @@ export function OverviewContent() {
           {learnerProfile?.role || "Track your learning progress and achievements"}
         </p>
       </div>
-
-      {/* Stats Cards */}
+      {}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
           <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-indigo-50 opacity-50 group-hover:opacity-100 transition-opacity" />
@@ -115,7 +103,6 @@ export function OverviewContent() {
             </p>
           </div>
         </div>
-
         <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
           <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-emerald-50 opacity-50 group-hover:opacity-100 transition-opacity" />
           <div className="relative">
@@ -133,7 +120,6 @@ export function OverviewContent() {
             </p>
           </div>
         </div>
-
         <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
           <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-violet-50 opacity-50 group-hover:opacity-100 transition-opacity" />
           <div className="relative">
@@ -151,7 +137,6 @@ export function OverviewContent() {
             </p>
           </div>
         </div>
-
         <div className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
           <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-amber-50 opacity-50 group-hover:opacity-100 transition-opacity" />
           <div className="relative">
@@ -173,8 +158,7 @@ export function OverviewContent() {
           </div>
         </div>
       </div>
-
-      {/* Quick Actions */}
+      {}
       <div className="grid gap-6 md:grid-cols-2">
         <div className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-indigo-500 to-indigo-600 p-8 shadow-lg hover:shadow-2xl transition-all duration-300">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
@@ -199,7 +183,6 @@ export function OverviewContent() {
             </Button> 
           </div>
         </div>
-
         <div className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-emerald-500 to-emerald-600 p-8 shadow-lg hover:shadow-2xl transition-all duration-300">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32" />
           <div className="relative z-10">
@@ -224,12 +207,11 @@ export function OverviewContent() {
           </div>
         </div>
       </div>
-
-      {/* Charts */}
+      {}
       {(stats.totalQuizzes > 0 ||
         (learnerProfile?.skills?.length || 0) > 0) && (
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Quiz Performance Chart */}
+          {}
           {stats.totalQuizzes > 0 && (
             <Card className="border-slate-200 bg-white">
               <CardHeader>
@@ -278,8 +260,7 @@ export function OverviewContent() {
               </CardContent>
             </Card>
           )}
-
-          {/* Skills Progress Chart */}
+          {}
           {(learnerProfile?.skills?.length || 0) > 0 && (
             <Card className="border-slate-200 bg-white">
               <CardHeader>
@@ -326,8 +307,7 @@ export function OverviewContent() {
           )}
         </div>
       )}
-
-      {/* Recent Interview Feedback */}
+      {}
       {stats.completedInterviews > 0 && (
         <Card className="border-slate-200 bg-white">
           <CardHeader>
@@ -421,8 +401,7 @@ export function OverviewContent() {
           </CardContent>
         </Card>
       )}
-
-      {/* Empty State */}
+      {}
       {stats.totalQuizzes === 0 && stats.totalInterviews === 0 && (
         <Card className="border-slate-200 bg-white">
           <CardContent className="flex flex-col items-center justify-center py-16">
@@ -456,5 +435,4 @@ export function OverviewContent() {
     </div>
   );
 }
-
 export default OverviewContent;

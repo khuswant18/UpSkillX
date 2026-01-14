@@ -1,43 +1,35 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-
 import Navbar from "../components/layout/Navbar"
 import Button from "../components/common/Button"
 import { useLearner } from "../context/LearnerContext"
 import { content } from "../data/mockData"
-
 const performanceLevels = [
   { min: 80, label: "Expert", tone: "text-emerald-600", accent: "bg-emerald-100" },
   { min: 60, label: "Intermediate", tone: "text-blue-600", accent: "bg-blue-100" },
   { min: 40, label: "Beginner", tone: "text-amber-600", accent: "bg-amber-100" },
   { min: 0, label: "Needs Improvement", tone: "text-rose-600", accent: "bg-rose-100" },
 ]
-
 export default function QuizPage() {
   const navigate = useNavigate()
   const { topic } = useParams()
   const { completeQuiz, learnerProfile } = useLearner()
-
   const topicContent = content[topic]
   const questions = topicContent?.quiz?.questions ?? []
-
   const [phase, setPhase] = useState("intro")
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState(() => Array(questions.length).fill(null))
   const [result, setResult] = useState(null)
-
   const attemptsForTopic = useMemo(() => {
     const attempts = learnerProfile?.quizAttempts || []
     return attempts.filter((attempt) => attempt.category === topic)
   }, [learnerProfile?.quizAttempts, topic])
-
   useEffect(() => {
     setPhase("intro")
     setCurrentIndex(0)
     setAnswers(Array(questions.length).fill(null))
     setResult(null)
   }, [topic, questions.length])
-
   if (!topicContent) {
     return (
       <div className="min-h-screen bg-background">
@@ -54,12 +46,10 @@ export default function QuizPage() {
       </div>
     )
   }
-
   const handleStart = () => {
     if (questions.length === 0) return
     setPhase("quiz")
   }
-
   const handleSelect = (optionIndex) => {
     setAnswers((prev) => {
       const next = [...prev]
@@ -67,37 +57,29 @@ export default function QuizPage() {
       return next
     })
   }
-
   const handleNext = () => {
     setCurrentIndex((prev) => Math.min(prev + 1, questions.length - 1))
   }
-
   const handlePrev = () => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0))
   }
-
   const getPerformance = (percentage) => {
     return performanceLevels.find((level) => percentage >= level.min) || performanceLevels[performanceLevels.length - 1]
   }
-
   const handleSubmit = async () => {
     const correctAnswers = questions.reduce((count, question, index) => {
       return count + (answers[index] === question.correct ? 1 : 0)
     }, 0)
-
     const percentage = questions.length > 0 ? Math.round((correctAnswers / questions.length) * 100) : 0
     const performance = getPerformance(percentage)
-
     const quizResult = {
       correctAnswers,
       totalQuestions: questions.length,
       percentage,
       level: performance.label,
     }
-
     setResult(quizResult)
     setPhase("result")
-
     try {
       await completeQuiz({
         topic,
@@ -111,16 +93,13 @@ export default function QuizPage() {
       console.error("Failed to record quiz attempt", error)
     }
   }
-
   const unanswered = answers.some((answer) => answer === null)
-
   const handleRetake = () => {
     setPhase("intro")
     setCurrentIndex(0)
     setAnswers(Array(questions.length).fill(null))
     setResult(null)
   }
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -128,14 +107,12 @@ export default function QuizPage() {
         <Link to="/quizzes" className="text-sm text-primary hover:underline">
           ← Back to quizzes
         </Link>
-
         <header className="mt-6 mb-10">
           <p className="text-sm uppercase tracking-wide text-muted-foreground">Topic</p>
           <h1 className="text-4xl font-bold text-foreground mb-3">{topicContent.quiz.title}</h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
             Answer the following questions to test your understanding of {topic}.
           </p>
-
           {attemptsForTopic.length > 0 && (
             <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span>Attempts: {attemptsForTopic.length}</span>
@@ -145,7 +122,6 @@ export default function QuizPage() {
             </div>
           )}
         </header>
-
         {phase === "intro" && (
           <section className="rounded-2xl border border-border bg-card/60 p-8 shadow-sm">
             <div className="grid gap-6 md:grid-cols-2">
@@ -174,7 +150,6 @@ export default function QuizPage() {
             </div>
           </section>
         )}
-
         {phase === "quiz" && (
           <section className="space-y-8">
             <div className="rounded-2xl border border-border bg-card/60 p-6 shadow-sm">
@@ -193,7 +168,6 @@ export default function QuizPage() {
                 ></div>
               </div>
             </div>
-
             <article className="rounded-2xl border border-border bg-card/80 p-8 shadow">
               <h2 className="text-2xl font-semibold text-foreground mb-6">
                 {questions[currentIndex].question}
@@ -218,7 +192,6 @@ export default function QuizPage() {
                 })}
               </div>
             </article>
-
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex gap-2">
                 <Button
@@ -244,7 +217,6 @@ export default function QuizPage() {
             </div>
           </section>
         )}
-
         {phase === "result" && result && (
           <section className="rounded-2xl border border-border bg-card/70 p-8 shadow">
             <h2 className="text-3xl font-semibold text-foreground mb-6">Quiz Complete</h2>
@@ -266,7 +238,6 @@ export default function QuizPage() {
                 </p>
               </div>
             </div>
-
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Button variant="outline" onClick={() => navigate("/quizzes")}>Back to Quiz Hub</Button>
               <div className="flex gap-3">

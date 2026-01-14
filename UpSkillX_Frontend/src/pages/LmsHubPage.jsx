@@ -1,13 +1,11 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { GraduationCap, Clock, TrendingUp, PlayCircle, CheckCircle2, Menu } from "lucide-react"
-
 import Button from "../components/common/Button"
 import Badge from "../components/common/Badge"
 import Progress from "../components/common/Progress"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../components/ui/card"
 import LearningSidebar from "../components/layout/LearningSidebar"
-
 const enrolledCourses = [
   {
     id: 1,
@@ -40,7 +38,6 @@ const enrolledCourses = [
     nextLesson: "Caching Strategies",
   },
 ]
-
 const recommendedCourses = [
   {
     id: 4,
@@ -70,15 +67,12 @@ const recommendedCourses = [
     level: "Intermediate",
   },
 ]
-
 export default function LmsHubPage() {
   const [activeTab, setActiveTab] = useState("enrolled")
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <LearningSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
       <div className="lg:ml-72 flex min-h-screen flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-card px-4 lg:px-8">
           <div className="flex items-center gap-3">
@@ -97,7 +91,6 @@ export default function LmsHubPage() {
             </div>
           </div>
         </header>
-
         <main className="flex-1 px-4 py-8 sm:px-8 lg:px-12 lg:py-10">
           <div className="mx-auto w-full max-w-6xl">
             <div className="mb-12">
@@ -107,7 +100,6 @@ export default function LmsHubPage() {
                 Track your progress, manage your courses, and discover personalized learning paths tailored to your goals.
               </p>
             </div>
-
             <section className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -119,7 +111,6 @@ export default function LmsHubPage() {
                   <p className="text-xs text-muted-foreground mt-1">Active learning paths</p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">Total Progress</CardTitle>
@@ -130,7 +121,6 @@ export default function LmsHubPage() {
                   <p className="text-xs text-muted-foreground mt-1">Average completion rate</p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">Learning Hours</CardTitle>
@@ -142,7 +132,6 @@ export default function LmsHubPage() {
                 </CardContent>
               </Card>
             </section>
-
             <section className="mb-8 flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-semibold">Your Courses</h2>
@@ -165,7 +154,6 @@ export default function LmsHubPage() {
                 )}
               </div>
             </section>
-
             {activeTab === "enrolled" && (
               <section className="space-y-6">
                 {enrolledCourses.map((course) => (
@@ -196,7 +184,6 @@ export default function LmsHubPage() {
                           <CheckCircle2 className="h-4 w-4" />
                         </div>
                       </div>
-
                       <div className="border-t border-border pt-4 text-sm text-muted-foreground">
                         <p>
                           Next lesson: <span className="text-foreground font-medium">{course.nextLesson}</span>
@@ -212,7 +199,6 @@ export default function LmsHubPage() {
                 ))}
               </section>
             )}
-
             {activeTab === "recommended" && (
               <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {recommendedCourses.map((course) => (

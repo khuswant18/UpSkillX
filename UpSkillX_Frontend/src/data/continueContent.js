@@ -1,11 +1,9 @@
-
 export const dsaHighlight = {
   title: "Striver's A2Z DSA Sheet",
   description: "Comprehensive DSA preparation sheet covering all important topics",
   ctaLabel: "Visit Resource",
   url: "https://takeuforward.org/strivers-a2z-dsa-course/",
 }
-
 export const dsaPracticeResources = [
   {
     id: "leetcode",
@@ -26,7 +24,6 @@ export const dsaPracticeResources = [
     url: "https://www.hackerrank.com/",
   },
 ]
-
 export const webDevFoundation = {
   title: "Foundations (Beginner Level)",
   description: "Master the core building blocks of web interfaces.",

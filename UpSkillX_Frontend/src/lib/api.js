@@ -1,34 +1,26 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api"
-
 const getAuthToken = () => {
   return localStorage.getItem("authToken")
 }
-
 const fetchWithAuth = async (url, options = {}) => {
   const token = getAuthToken()
   const headers = {
     "Content-Type": "application/json",
     ...options.headers,
   }
-
   if (token) {
     headers.Authorization = `Bearer ${token}`
   }
-
   const response = await fetch(url, {
     ...options,
     headers,
   })
-
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: "An error occurred" }))
     throw new Error(error.message || `HTTP ${response.status}`)
   }
-
   return response.json()
 }
-
-// Auth API
 export const authAPI = {
   login: async (email, password) => {
     return fetchWithAuth(`${API_URL}/auth/login`, {
@@ -36,18 +28,15 @@ export const authAPI = {
       body: JSON.stringify({ email, password }),
     })
   },
-
   register: async (name, email, password, role, experience, skills) => {
     return fetchWithAuth(`${API_URL}/auth/register`, {
       method: "POST",
       body: JSON.stringify({ name, email, password, role, experience, skills }),
     })
   },
-
   getProfile: async () => {
     return fetchWithAuth(`${API_URL}/auth/profile`)
   },
-
   updateProfile: async (data) => {
     return fetchWithAuth(`${API_URL}/auth/profile`, {
       method: "PUT",
@@ -55,8 +44,6 @@ export const authAPI = {
     })
   },
 }
-
-
 export const interviewAPI = {
   startInterview: async (role, interviewType, technologies) => {
     return fetchWithAuth(`${API_URL}/interview/start-interview`, {
@@ -64,34 +51,27 @@ export const interviewAPI = {
       body: JSON.stringify({ role, interviewType, technologies }),
     })
   },
-
   completeInterview: async (interviewId, transcript, duration) => {
     return fetchWithAuth(`${API_URL}/interview/complete`, {
       method: "POST",
       body: JSON.stringify({ interviewId, transcript, duration }),
     })
   },
-
   getInterview: async (interviewId) => {
     return fetchWithAuth(`${API_URL}/interview/${interviewId}`)
   },
-
   getUserInterviews: async () => {
     return fetchWithAuth(`${API_URL}/interview/user/history`)
   },
 }
-
-
 export const resourcesAPI = {
   getResources: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString()
     return fetchWithAuth(`${API_URL}/resource${queryString ? `?${queryString}` : ""}`)
   },
-
   searchResources: async (query) => {
     return fetchWithAuth(`${API_URL}/resource/search?q=${encodeURIComponent(query)}`)
   },
-
   addResource: async (resource) => {
     return fetchWithAuth(`${API_URL}/resource`, {
       method: "POST",
@@ -99,7 +79,6 @@ export const resourcesAPI = {
     })
   },
 }
-
 export const quizAPI = {
   createQuiz: async (quizData) => {
     return fetchWithAuth(`${API_URL}/quiz/create_quiz`, {
@@ -107,11 +86,9 @@ export const quizAPI = {
       body: JSON.stringify(quizData),
     })
   },
-
   getAllQuizzes: async () => {
     return fetchWithAuth(`${API_URL}/quiz/quizzes`)
   },
-
   submitQuizAnswers: async (id, answers) => {
     return fetchWithAuth(`${API_URL}/quiz/correct_quiz/${id}`, {
       method: "POST",
@@ -127,7 +104,6 @@ export const quizAPI = {
     })
   }
 }
-
 export default {
   authAPI,
   interviewAPI,

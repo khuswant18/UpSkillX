@@ -12,7 +12,6 @@ import {
   Trash2,
   ArrowLeft,
 } from "lucide-react";
-
 import Navbar from "../components/layout/Navbar";
 import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
@@ -25,7 +24,6 @@ import {
 } from "../components/ui/card";
 import QuizTaking from "../components/quiz/QuizTaking";
 import QuizResults from "../components/quiz/QuizResults";
-
 const subjects = [
   "All",
   "Programming",
@@ -34,13 +32,11 @@ const subjects = [
   "Database",
 ];
 const difficulties = ["All", "Beginner", "Intermediate", "Advanced"];
-
 const difficultyStyles = {
   Beginner: "bg-green-500/10 text-green-500 border-green-500/20",
   Intermediate: "bg-yellow-500/10 text-yellow-500 border-yellow-500/30",
   Advanced: "bg-red-500/10 text-red-500 border-red-500/20",
 };
-
 export default function QuizHubPage() {
   const navigate = useNavigate();
   const [selectedSubject, setSelectedSubject] = useState("All");
@@ -51,16 +47,13 @@ export default function QuizHubPage() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
-
   useEffect(() => { 
     fetchQuizzes();
   }, []);
-
   const fetchQuizzes = async () => {
     try {
       const data = await quizAPI.getAllQuizzes();
       console.log("Fetched quizzes:", data);
-
       let quizzesArray = [];
       if (Array.isArray(data)) {
         quizzesArray = data;
@@ -69,7 +62,6 @@ export default function QuizHubPage() {
       } else if (data.data && Array.isArray(data.data)) {
         quizzesArray = data.data;
       }
-
       const formattedQuizzes = quizzesArray.map((quiz) => ({
         id: quiz.id || quiz._id,
         title: quiz.title || quiz.topic || "Quiz",
@@ -83,15 +75,12 @@ export default function QuizHubPage() {
         completions: quiz.completions || 0,
         generatedQuestions: quiz.questions || [],
       }));
-
       setQuizzes(formattedQuizzes);
     } catch (error) {
       console.error("Error fetching quizzes:", error);
-      // Keep empty array on error
       setQuizzes([]);
     }
   };
-
   const filteredQuizzes = useMemo(() => {
     return quizzes.filter((quiz) => {
       const subjectMatch =
@@ -101,29 +90,24 @@ export default function QuizHubPage() {
       return subjectMatch && difficultyMatch;
     });
   }, [selectedSubject, selectedDifficulty, quizzes]);
-
   const handleStartQuiz = (quiz) => {
     setActiveQuiz(quiz);
     setQuizState("taking");
     setAnswers([]);
   };
-
   const handleQuizComplete = (userAnswers) => {
     setAnswers(userAnswers);
     setQuizState("results");
   };
-
   const handleBackToBrowse = () => {
     setActiveQuiz(null);
     setQuizState("browse");
     setAnswers([]);
   };
-
   const handleDeleteQuiz = async (quizId) => {
     if (!window.confirm("Are you sure you want to delete this quiz?")) {
       return;
     }
-
     try {
       await quizAPI.deleteQuiz(quizId);
       await fetchQuizzes();
@@ -133,34 +117,25 @@ export default function QuizHubPage() {
       alert("Failed to delete quiz. Please try again.");
     }
   };
-
   const handleGenerateQuiz = async () => {
     if (!aiPrompt.trim()) {
       alert("Please enter a prompt to generate a quiz");
       return;
     }
-
     setIsGenerating(true);
     try {
       console.log("🚀 Starting quiz generation with prompt:", aiPrompt);
-
       const quizData = {
         prompt: aiPrompt,
         difficulty:
           selectedDifficulty === "All" ? "Intermediate" : selectedDifficulty,
         questionCount: 5,
       };
-
       console.log("📤 Sending to backend:", quizData);
-
-      // Create quiz
       const createResponse = await quizAPI.createQuiz(quizData);
       console.log("✅ Create quiz response:", createResponse);
-
-      // Handle different response structures
       let questions = null;
       let quizInfo = null;
-
       if (createResponse.quiz) {
         quizInfo = createResponse.quiz;
         questions = createResponse.quiz.questions;
@@ -174,15 +149,11 @@ export default function QuizHubPage() {
         questions = createResponse.data.questions;
         quizInfo = createResponse.data;
       }
-
       console.log("Extracted questions:", questions);
       console.log("Quiz info:", quizInfo);
-
-      // Check if we got questions
       if (questions && Array.isArray(questions) && questions.length > 0) {
         console.log("✅ Found questions, count:", questions.length);
         console.log("Sample question:", questions[0]);
-
         const customQuiz = {
           id: quizInfo?.id || quizInfo?._id || Date.now().toString(),
           title:
@@ -196,14 +167,10 @@ export default function QuizHubPage() {
           completions: 0,
           generatedQuestions: questions,
         };
-
         console.log("📝 Starting quiz with:", customQuiz);
-
-        // Refresh quiz list in background
         fetchQuizzes().catch((err) =>
           console.error("Error refreshing quiz list:", err)
         );
-
         setActiveQuiz(customQuiz);
         setQuizState("taking");
         setAiPrompt("");
@@ -227,7 +194,6 @@ export default function QuizHubPage() {
       setIsGenerating(false);
     }
   };
-
   if (quizState === "taking" && activeQuiz) {
     return (
       <div className="min-h-screen bg-background text-foreground">
@@ -240,7 +206,6 @@ export default function QuizHubPage() {
       </div>
     );
   }
-
   if (quizState === "results" && activeQuiz) {
     return (
       <div className="min-h-screen bg-background text-foreground">
@@ -253,11 +218,9 @@ export default function QuizHubPage() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-
       <div className="flex min-h-screen flex-col">
         <main className="flex-1 px-4 py-10 sm:px-8 lg:px-12">
           <div className="mx-auto w-full max-w-6xl">
@@ -270,7 +233,6 @@ export default function QuizHubPage() {
               <ArrowLeft className="h-4 w-4" />
               Back to Dashboard
             </Button>
-
             <div className="mb-12">
               <h1 className="mt-3 text-4xl font-bold sm:text-5xl">
                 Interactive Quizzes
@@ -281,7 +243,6 @@ export default function QuizHubPage() {
                 skill level.
               </p>
             </div>
-
             <section className="mb-10 rounded-2xl border-2 border-primary/20 bg-linear-to-r from-primary/5 to-purple-500/5 p-6 shadow-lg backdrop-blur">
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -296,7 +257,6 @@ export default function QuizHubPage() {
                   </p>
                 </div>
               </div>
-
               <div className="flex gap-3">
                 <div className="relative flex-1">
                   <input
@@ -338,7 +298,6 @@ export default function QuizHubPage() {
                   )}
                 </Button>
               </div>
-
               <div className="mt-4 flex flex-wrap gap-2">
                 <span className="text-xs text-muted-foreground">Try:</span>
                 {[
@@ -358,13 +317,11 @@ export default function QuizHubPage() {
                 ))}
               </div>
             </section>
-
             <section className="mb-10 rounded-2xl border border-border bg-card/60 p-6 shadow-sm backdrop-blur">
               <div className="mb-4 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Filter className="h-4 w-4" />
                 Filters
               </div>
-
               <div className="flex flex-col gap-6 lg:flex-row">
                 <div className="flex-1 space-y-3">
                   <p className="text-sm font-medium text-muted-foreground">
@@ -385,7 +342,6 @@ export default function QuizHubPage() {
                     ))}
                   </div>
                 </div>
-
                 <div className="flex-1 space-y-3">
                   <p className="text-sm font-medium text-muted-foreground">
                     Difficulty
@@ -409,7 +365,6 @@ export default function QuizHubPage() {
                 </div>
               </div>
             </section>
-
             <section>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {filteredQuizzes.map((quiz) => (
@@ -473,7 +428,6 @@ export default function QuizHubPage() {
                   </Card>
                 ))}
               </div>
-
               {filteredQuizzes.length === 0 && (
                 <div className="mt-10 rounded-xl border border-dashed border-border bg-card/40 py-12 text-center">
                   <p className="text-muted-foreground">

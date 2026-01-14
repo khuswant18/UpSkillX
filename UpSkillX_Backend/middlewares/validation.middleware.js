@@ -1,13 +1,11 @@
 export const validateInterviewRequest = (req, res, next) => {
   const { role, interviewType, technologies } = req.body;
-
   if (!role || typeof role !== "string" || role.trim() === "") {
     return res.status(400).json({
       success: false,
       error: "Role is required and must be a non-empty string",
     });
   }
-
   if (
     !interviewType ||
     !["technical", "behavioral", "mixed"].includes(interviewType)
@@ -17,7 +15,6 @@ export const validateInterviewRequest = (req, res, next) => {
       error: "Interview type must be 'technical', 'behavioral', or 'mixed'",
     });
   }
-
   if (
     !technologies ||
     !Array.isArray(technologies) ||
@@ -28,45 +25,35 @@ export const validateInterviewRequest = (req, res, next) => {
       error: "Technologies must be a non-empty array",
     });
   }
-
   next();
 };
-
 export const errorHandler = (err, req, res, next) => {
   console.error("Error:", err);
-
-  // Handle Prisma errors
   if (err.code === "P2002") {
     return res.status(409).json({
       success: false,
       error: "A record with this information already exists",
     });
   }
-
   if (err.code === "P2025") {
     return res.status(404).json({
       success: false,
       error: "Record not found",
     });
   }
-
-  // Handle bcrypt errors
   if (err.name === "Error" && err.message.includes("bcrypt")) {
     return res.status(500).json({
       success: false,
       error: "Authentication error occurred",
     });
   }
-
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
-
   res.status(statusCode).json({
     success: false,
     error: message
   });
 };
-
 export const notFoundHandler = (req, res) => {
   res.status(404).json({
     success: false,

@@ -1,5 +1,3 @@
-// Mock data for EduNerve AI platform
-
 export const careerPaths = {
   "Software Engineer": [
     "Data Structures",
@@ -42,7 +40,6 @@ export const careerPaths = {
     "Design Systems",
   ],
 }
-
 export const learningGoals = [
   "Get job-ready in 3 months",
   "Improve technical skills",
@@ -51,7 +48,6 @@ export const learningGoals = [
   "Career transition",
   "Skill enhancement",
 ]
-
 export const content = {
   "Data Structures": {
     lms: {

@@ -16,7 +16,6 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
-
             <Route
               path="/dashboard"
               element={
@@ -41,8 +40,6 @@ export default function App() {
                 </PrivateRoute>
               }
             />
-
-
             <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>

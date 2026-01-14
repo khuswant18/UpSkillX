@@ -1,12 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import config from "../config/config.js";
-
 const genAI = new GoogleGenerativeAI(config.geminiApiKey);
-
 export async function generateInterviewFeedback(interviewData) { 
   try {
     const { role, interviewType, technologies, transcript } = interviewData;
-
     const model = genAI.getGenerativeModel({
       model: "gemini-2.0-flash-exp",
       generationConfig: {
@@ -15,18 +12,14 @@ export async function generateInterviewFeedback(interviewData) {
         responseMimeType: "application/json",
       },
     });
-
     const prompt = `
 You are an expert technical interviewer. Analyze this interview transcript and provide detailed feedback.
-
 Interview Details:
 - Role: ${role}
 - Interview Type: ${interviewType}
 - Technologies: ${technologies.join(", ")}
-
 Transcript:
 ${JSON.stringify(transcript, null, 2)}
-
 Provide a comprehensive analysis in this exact JSON format:
 {
   "feedback": "Overall detailed feedback about the candidate's performance (200-300 words)",
@@ -62,7 +55,6 @@ Provide a comprehensive analysis in this exact JSON format:
     }
   ]
 }
-
 Guidelines:
 - Scores should be 0-100 (use decimals)
 - Be specific and constructive
@@ -70,12 +62,9 @@ Guidelines:
 - Provide actionable improvement suggestions
 - Base analysis on actual transcript content
 `;
-
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
-
-
     let cleanText = text.trim();
     if (cleanText.startsWith("```json")) {
       cleanText = cleanText.replace(/```json\n?/g, "").replace(/```\n?$/g, "");
@@ -83,20 +72,16 @@ Guidelines:
       cleanText = cleanText.replace(/```\n?/g, "");
     }
     cleanText = cleanText.trim();
-
     const analysisData = JSON.parse(cleanText);
-
     if (!analysisData.feedback || !analysisData.overallScore) {
       throw new Error("Invalid AI response structure");
     }
-
     return analysisData;
   } catch (error) {
     console.error("Error generating interview feedback:", error);
     throw error;
   }
 }
-
 export async function generateResourceRecommendations(weakAreas, role, technologies) {
   try {
     const model = genAI.getGenerativeModel({
@@ -107,15 +92,12 @@ export async function generateResourceRecommendations(weakAreas, role, technolog
         responseMimeType: "application/json",
       },
     });  
-
     const prompt = `
 You are a technical learning advisor. Generate learning resource recommendations.
-
 Context:
 - Target Role: ${role}
 - Technologies: ${technologies.join(", ")}
 - Weak Areas Identified: ${weakAreas.join(", ")}
-
 Generate 8-12 high-quality learning resources in this exact JSON format:
 {
   "recommendations": [
@@ -145,7 +127,6 @@ Generate 8-12 high-quality learning resources in this exact JSON format:
     }
   ]
 }
-
 Guidelines:
 - Provide REAL, working URLs (use official documentation, YouTube, Medium, dev.to, etc.)
 - Categories: "documentation", "video", "article", "course"
@@ -154,11 +135,9 @@ Guidelines:
 - Include mix of free and high-quality resources
 - Prefer official documentation and reputable sources
 `;
-
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
-
     let cleanText = text.trim();
     if (cleanText.startsWith("```json")) {
       cleanText = cleanText.replace(/```json\n?/g, "").replace(/```\n?$/g, "");
@@ -166,9 +145,7 @@ Guidelines:
       cleanText = cleanText.replace(/```\n?/g, "");
     }
     cleanText = cleanText.trim();
-
     const recommendationsData = JSON.parse(cleanText);
-
     return recommendationsData.recommendations || [];
   } catch (error) {
     console.error("Error generating resource recommendations:", error);

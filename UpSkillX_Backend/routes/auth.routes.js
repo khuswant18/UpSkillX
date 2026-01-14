@@ -2,9 +2,7 @@ import express from "express";
 import { register, login, logout } from "../controllers/auth.controller.js";
 import { authenticate } from "../middlewares/auth.middleware.js";
 import prisma from "../db/config.js";
-
 const router = express.Router();
-
 router.post("/signup", register);
 router.post("/register", register); // Add this for frontend compatibility
 router.post("/login", login);
@@ -24,14 +22,12 @@ router.get("/profile", authenticate, async (req, res) => {
         createdAt: true,
       },
     });
-
     if (!user) {
       return res.status(404).json({
         success: false,
         error: "User not found",
       });
     }
-
     res.json({
       success: true,
       user,
@@ -44,5 +40,4 @@ router.get("/profile", authenticate, async (req, res) => {
     });
   }
 });
-
 export default router;

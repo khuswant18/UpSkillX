@@ -6,27 +6,22 @@ import Button from "../components/common/Button"
 import { OverviewContent } from "../components/dashboard/overview-content"
 import { FeedbackContent } from "../components/dashboard/feedback-content"
 import { useLearner } from "../context/LearnerContext"
-
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
   const { logout } = useLearner()
   const navigate = useNavigate()
-
   const handleLogout = () => {
     logout()
     navigate("/")
   }
-
   const tabs = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "feedback", label: "Feedback", icon: MessageSquare }
   ]
-
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-indigo-50/30">
       <LearningSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
       <div className="lg:ml-72 flex min-h-screen flex-col">
         <header className="sticky top-0 z-10 backdrop-blur-xl bg-white/80 border-b border-gray-200/60">
           <div className="flex h-16 items-center justify-between px-6 lg:px-10">
@@ -62,8 +57,7 @@ export default function DashboardPage() {
               </Button>
             </div> 
           </div>
-
-          {/* Tab Navigation */}
+          {}
           <div className="flex gap-1 px-6 lg:px-10 -mb-px">
             {tabs.map((tab) => {
               const Icon = tab.icon
@@ -87,7 +81,6 @@ export default function DashboardPage() {
             })}
           </div>
         </header>
-
         <main className="flex-1 px-6 py-8 lg:px-10 lg:py-10">
           {activeTab === "overview" ? <OverviewContent /> : <FeedbackContent />}
         </main>

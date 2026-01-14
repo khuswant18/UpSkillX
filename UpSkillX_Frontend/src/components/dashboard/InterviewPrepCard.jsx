@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
 import Button from "../common/Button"
-
 export default function InterviewPrepCard({ topic, data }) {
   return (
     <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
@@ -11,7 +10,6 @@ export default function InterviewPrepCard({ topic, data }) {
         </div>
         <span className="text-2xl">🎤</span>
       </div>
-
       <div className="mb-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
           <span>💡</span>
@@ -22,7 +20,6 @@ export default function InterviewPrepCard({ topic, data }) {
           <span>Build confidence</span>
         </div>
       </div>
-
       <Link to={`/interview/${topic}`}>
         <Button variant="primary" className="w-full">
           Practice Interview

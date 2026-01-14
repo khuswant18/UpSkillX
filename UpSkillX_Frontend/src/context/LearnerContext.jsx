@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react"
 import { authAPI } from "../lib/api"
-
 const decodeGoogleCredential = (credential) => {
   try {
     const base64Url = credential.split(".")[1]
@@ -17,36 +16,29 @@ const decodeGoogleCredential = (credential) => {
     return null
   }
 }
-
 const LearnerContext = createContext(null)
-
 export function LearnerProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [authUser, setAuthUser] = useState(null)
   const [learnerProfile, setLearnerProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("authToken")
       const googleUser = localStorage.getItem("googleUser")
-
       console.log("🔐 Auth check on mount:", {
         hasToken: !!token,
         hasGoogleUser: !!googleUser
       })
-
       if (token) {
         try {
           const response = await authAPI.getProfile()
           const user = response.success ? response.user : response
-
           console.log("✅ Auth check successful:", {
             userId: user.id,
             email: user.email,
             hasGoogleUser: !!googleUser
           })
-
           if (googleUser) {
             const gUser = JSON.parse(googleUser)
             setAuthUser(gUser)
@@ -58,7 +50,6 @@ export function LearnerProvider({ children }) {
               picture: null,
             })
           }
-
           const profileData = {
             id: user.id,
             name: user.name,
@@ -70,14 +61,11 @@ export function LearnerProvider({ children }) {
             quizAttempts: user.quizResults || [],
             interviewsPracticed: user.interviews || [],
           }
-
           localStorage.setItem("cachedProfile", JSON.stringify(profileData))
-
           setIsAuthenticated(true)
           setLearnerProfile(profileData)
         } catch (error) {
           console.error("Auth check failed:", error)
-
           if (error.message?.includes('401') || error.message?.includes('Invalid token') || error.message?.includes('Token has expired')) {
             console.error("🔒 Token is invalid or expired - clearing session")
             localStorage.removeItem("authToken")
@@ -88,14 +76,11 @@ export function LearnerProvider({ children }) {
             setLearnerProfile(null)
           } else {
             console.warn("⚠️ Server temporarily unavailable - keeping user session active")
-
             const cachedProfile = localStorage.getItem("cachedProfile")
-
             if (cachedProfile) {
               const profile = JSON.parse(cachedProfile)
               setLearnerProfile(profile)
               setIsAuthenticated(true)
-
               if (googleUser) {
                 const gUser = JSON.parse(googleUser)
                 setAuthUser(gUser)
@@ -111,7 +96,6 @@ export function LearnerProvider({ children }) {
               const gUser = JSON.parse(googleUser)
               setAuthUser(gUser)
               setIsAuthenticated(true)
-
               setLearnerProfile({
                 id: gUser.id,
                 name: gUser.name,
@@ -134,7 +118,6 @@ export function LearnerProvider({ children }) {
                     .join('')
                 )
                 const decoded = JSON.parse(jsonPayload)
-
                 setAuthUser({
                   provider: "credentials",
                   email: decoded.email,
@@ -155,7 +138,6 @@ export function LearnerProvider({ children }) {
                 })
               } catch (decodeError) {
                 console.error("Failed to decode token:", decodeError)
-                // If we can't decode the token, clear the session
                 localStorage.removeItem("authToken")
                 localStorage.removeItem("googleUser")
                 localStorage.removeItem("cachedProfile")
@@ -180,19 +162,16 @@ export function LearnerProvider({ children }) {
     }
     checkAuth()
   }, [])
-
   const login = async (email, password) => {
     try {
       const response = await authAPI.login(email, password)
       localStorage.setItem("authToken", response.token)
-
       const authUserData = {
         provider: "credentials",
         email: response.user.email,
         name: response.user.name,
         picture: null,
       }
-
       const profileData = {
         id: response.user.id,
         name: response.user.name,
@@ -203,38 +182,30 @@ export function LearnerProvider({ children }) {
         quizAttempts: [],
         interviewsPracticed: [],
       }
-
       localStorage.setItem("cachedProfile", JSON.stringify(profileData))
-
       setIsAuthenticated(true)
       setAuthUser(authUserData)
       setLearnerProfile(profileData)
-
       return { success: true }
     } catch (error) {
       console.error("Login failed:", error)
       return { success: false, error: error.message }
     }
   }
-
   const signup = async (name, email, password, role, experience, skills) => {
     try {
       const response = await authAPI.register(name, email, password, role, experience, skills)
       console.log("Signup response:", response)
       console.log("Saving token:", response.token)
       localStorage.setItem("authToken", response.token)
-
-
       const savedToken = localStorage.getItem("authToken")
       console.log("Token saved successfully:", !!savedToken)
-
       const authUserData = {
         provider: "credentials",
         email: response.user.email,
         name: response.user.name,
         picture: null,
       }
-
       const profileData = {
         id: response.user.id,
         name: response.user.name,
@@ -245,27 +216,21 @@ export function LearnerProvider({ children }) {
         quizAttempts: [],
         interviewsPracticed: [],
       }
-
       localStorage.setItem("cachedProfile", JSON.stringify(profileData))
-
       setIsAuthenticated(true)
       setAuthUser(authUserData)
       setLearnerProfile(profileData)
-
       return { success: true }
     } catch (error) {
       console.error("Signup failed:", error)
       return { success: false, error: error.message }
     }
   }
-
   const loginWithGoogle = async (credential) => {
     const profile = credential ? decodeGoogleCredential(credential) : null
-
     if (!profile) {
       return { success: false, error: "Unable to verify your Google account. Please try again." }
     }
-
     try {
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       const response = await fetch(`${API_URL}/auth/google`, {
@@ -280,20 +245,15 @@ export function LearnerProvider({ children }) {
           picture: profile.picture
         })
       })
-
       const data = await response.json()
-
       if (!data.success) {
         return { success: false, error: data.error || "Google authentication failed" }
       }
-
       console.log("Google login successful, saving token:", {
         hasToken: !!data.token,
         tokenPreview: data.token?.substring(0, 20) + "..."
       })
-
       localStorage.setItem("authToken", data.token)
-
       const googleUser = {
         provider: "google",
         id: data.user.id,
@@ -301,15 +261,11 @@ export function LearnerProvider({ children }) {
         name: data.user.name,
         picture: data.user.avatar,
       }
-
-
       localStorage.setItem("googleUser", JSON.stringify(googleUser))
-
       console.log("Saved to localStorage:", {
         authToken: !!localStorage.getItem("authToken"),
         googleUser: !!localStorage.getItem("googleUser")
       })
-
       const profileData = {
         id: data.user.id,
         name: data.user.name,
@@ -321,14 +277,10 @@ export function LearnerProvider({ children }) {
         quizAttempts: [],
         interviewsPracticed: [],
       }
-
-
       localStorage.setItem("cachedProfile", JSON.stringify(profileData))
-
       setIsAuthenticated(true)
       setAuthUser(googleUser)
       setLearnerProfile(profileData)
-
       return {
         success: true,
         isGoogleAuth: true
@@ -338,7 +290,6 @@ export function LearnerProvider({ children }) {
       return { success: false, error: error.message }
     }
   }
-
   const logout = () => {
     localStorage.removeItem("authToken")
     localStorage.removeItem("googleUser")
@@ -347,7 +298,6 @@ export function LearnerProvider({ children }) {
     setAuthUser(null)
     setLearnerProfile(null)
   }
-
   const setProfile = (profileData) => {
     setLearnerProfile((prev) => {
       const updatedProfile = {
@@ -360,7 +310,6 @@ export function LearnerProvider({ children }) {
         experience: profileData?.experience || prev?.experience || "",
         skills: profileData?.skills || prev?.skills || [],
       }
-
       if (authUser?.provider === "google") {
         const googleUser = JSON.parse(localStorage.getItem("googleUser") || "{}")
         localStorage.setItem("googleUser", JSON.stringify({
@@ -370,11 +319,9 @@ export function LearnerProvider({ children }) {
           skills: updatedProfile.skills,
         }))
       }
-
       return updatedProfile
     })
   }
-
   const completeQuiz = async (quizData) => {
     const result = {
       category: quizData.topic,
@@ -384,7 +331,6 @@ export function LearnerProvider({ children }) {
       percentage: quizData.percentage,
       level: quizData.level
     }
-
     setLearnerProfile((prev) => {
       if (!prev) return prev
       return {
@@ -398,10 +344,8 @@ export function LearnerProvider({ children }) {
         ],
       }
     })
-
     return result
   }
-
   const saveInterviewResult = async (interviewData) => {
     setLearnerProfile((prev) => {
       if (!prev) return prev
@@ -417,7 +361,6 @@ export function LearnerProvider({ children }) {
       }
     })
   }
-
   const refreshProfile = async () => {
     try {
       const token = localStorage.getItem("authToken")
@@ -425,8 +368,6 @@ export function LearnerProvider({ children }) {
         console.log("No token found in refreshProfile")
         return false
       }
-
-      // First try to load from cache
       const cachedProfile = localStorage.getItem("cachedProfile")
       if (cachedProfile) {
         try {
@@ -441,12 +382,9 @@ export function LearnerProvider({ children }) {
           console.error("Failed to parse cached profile:", e)
         }
       }
-
-      // Then try to fetch from server
       setLoading(true)
       const response = await authAPI.getProfile()
       const user = response.success ? response.user : response
-
       const profileData = {
         id: user.id,
         name: user.name,
@@ -458,7 +396,6 @@ export function LearnerProvider({ children }) {
         quizAttempts: user.quizResults || [],
         interviewsPracticed: user.interviews || [],
       }
-
       localStorage.setItem("cachedProfile", JSON.stringify(profileData))
       setLearnerProfile(profileData)
       setIsAuthenticated(true)
@@ -471,7 +408,6 @@ export function LearnerProvider({ children }) {
       return false
     }
   }
-
   const value = {
     isAuthenticated,
     authUser,
@@ -486,10 +422,8 @@ export function LearnerProvider({ children }) {
     saveInterviewResult,
     refreshProfile,
   }
-
   return <LearnerContext.Provider value={value}>{children}</LearnerContext.Provider>
 }
-
 export function useLearner() {
   const context = useContext(LearnerContext)
   if (!context) {

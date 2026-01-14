@@ -2,11 +2,9 @@ import { useLearner } from "../context/LearnerContext"
 import { content } from "../data/mockData"
 import { Link, useParams } from "react-router-dom"
 import Button from "../components/common/Button"
-
 export default function LearningPage() {
   const { topic } = useParams()
   const { learnerProfile, completeModule } = useLearner()
-
   if (topic) {
     const topicContent = content[topic]
     if (!topicContent) {
@@ -21,29 +19,24 @@ export default function LearningPage() {
         </div>
       )
     }
-
     const handleCompleteModule = (moduleId) => {
       completeModule(topic, moduleId)
     }
-
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link to="/learning" className="text-primary hover:underline mb-6 inline-block">
             ← Back to Learning
           </Link>
-
           <div className="bg-card border border-border rounded-lg p-8 mb-6">
             <h1 className="text-3xl font-bold text-foreground mb-2">{topicContent.lms.title}</h1>
             <p className="text-muted-foreground">{topicContent.lms.description}</p>
           </div>
-
           <div className="space-y-4">
             {topicContent.lms.modules.map((module) => {
               const isCompleted = learnerProfile?.completedModules?.some(
                 (cm) => cm.topic === topic && cm.moduleId === module.id,
               )
-
               return (
                 <div
                   key={module.id}
@@ -73,9 +66,7 @@ export default function LearningPage() {
       </div>
     )
   }
-
   const weakTopics = learnerProfile?.weakTopics || []
-
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -83,17 +74,14 @@ export default function LearningPage() {
           <h1 className="text-3xl font-bold text-foreground mb-2">Learning Hub</h1>
           <p className="text-muted-foreground">Master your weak topics with structured courses</p>
         </div>
-
         {weakTopics.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {weakTopics.map((topic) => {
               const topicContent = content[topic]
               if (!topicContent) return null
-
               const completedModules = learnerProfile?.completedModules?.filter((cm) => cm.topic === topic).length || 0
               const totalModules = topicContent.lms.modules.length
               const progress = (completedModules / totalModules) * 100
-
               return (
                 <Link
                   key={topic}
@@ -107,7 +95,6 @@ export default function LearningPage() {
                     </div>
                     <span className="text-2xl">📚</span>
                   </div>
-
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-muted-foreground">Progress</span>

@@ -3,12 +3,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import routes from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./middlewares/validation.middleware.js";
-
 const app = express();
-
 app.use(cookieParser());
-
-// CORS configuration for Google OAuth
 const corsOptions = {
   origin: [
     'http://localhost:5173',
@@ -22,20 +18,15 @@ const corsOptions = {
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
   optionsSuccessStatus: 200
 };
-
 app.use(cors());
-
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
   next();
 });
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use("/api", routes);
-
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -48,11 +39,9 @@ app.get("/", (req, res) => {
   });
 });
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });
 app.use(notFoundHandler);
 app.use(errorHandler);
-
 export default app;

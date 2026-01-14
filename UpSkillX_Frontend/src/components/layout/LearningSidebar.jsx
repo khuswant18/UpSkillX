@@ -2,18 +2,15 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { LayoutDashboard, BookOpen, MessageSquare, LogOut, Home, Sparkles } from "lucide-react"
 import { useLearner } from "../../context/LearnerContext"
 import Button from "../common/Button"
-
 const links = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Quizzes", to: "/quizzes", icon: BookOpen },
   { label: "Interviews", to: "/interviews", icon: MessageSquare },
 ] 
-
 export default function LearningSidebar({ open = false, onClose }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { learnerProfile, logout } = useLearner()
-
   const displayName = learnerProfile?.name || "User"
   const displayField = learnerProfile?.role || learnerProfile?.field || "Learner"
   const avatarUrl = learnerProfile?.avatar
@@ -23,7 +20,6 @@ export default function LearningSidebar({ open = false, onClose }) {
     .join("")
     .slice(0, 2)
     .toUpperCase()
-
   const handleLogout = () => {
     logout()
     navigate("/")
@@ -31,11 +27,9 @@ export default function LearningSidebar({ open = false, onClose }) {
       onClose()
     }
   }
-
   return (
     <>
       {open && <div className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden" onClick={onClose} />}
-
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white shadow-2xl transition-transform duration-300 ease-in-out lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
@@ -49,12 +43,10 @@ export default function LearningSidebar({ open = false, onClose }) {
               <p className="text-xs text-gray-500">Learning Platform</p>
             </div>
           </div>
-
           <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-6">
             {links.map((item) => {
               const isActive = location.pathname === item.to
               const Icon = item.icon
-
               return (
                 <Link
                   key={item.to}
@@ -71,7 +63,6 @@ export default function LearningSidebar({ open = false, onClose }) {
                 </Link>
               )
             })}
-            
             <div className="pt-4 mt-4 border-t border-gray-100">
               <Link
                 to="/"
@@ -83,7 +74,6 @@ export default function LearningSidebar({ open = false, onClose }) {
               </Link>
             </div>
           </nav>
-
           <div className="border-t border-gray-100 p-5 bg-gray-50/50">
             <div className="flex items-center gap-3 mb-4">
               {avatarUrl ? (
