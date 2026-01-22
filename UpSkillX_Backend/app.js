@@ -10,7 +10,8 @@ const corsOptions = {
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:3000',
-    'https://accounts.google.com'
+    'https://accounts.google.com',
+    'https://up-skill-x-phi.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -18,7 +19,7 @@ const corsOptions = {
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
   optionsSuccessStatus: 200
 };
-app.use(cors());
+app.use(cors(corsOptions));
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
@@ -28,14 +29,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", routes);
 app.get("/", (req, res) => {
-  res.json({
+  res.json({ 
     success: true,
     message: "Welcome to EduNerve AI Mock Interview API",
     version: "1.0.0",
     endpoints: {
       health: "GET /api/health",
       startInterview: "POST /api/start-interview",
-    },
+    }, 
   });
 });
 const PORT = process.env.PORT || 3000;
